@@ -1,0 +1,207 @@
+'use strict';
+
+var React = require("react");
+var ReactTransitionChildMapping = require("react/lib/ReactTransitionChildMapping");
+
+var assign = require("react/lib/Object.assign");
+var cloneWithProps = require("react/lib/cloneWithProps");
+var emptyFunction = require("react/lib/emptyFunction");
+
+var APPEARING = 'appear';
+var ENTERING = 'enter';
+var LEAVING = 'leave';
+
+var RobustTransitionGroup = React.createClass({
+  displayName: 'RobustTransitionGroup',
+
+  propTypes: {
+    component: React.PropTypes.any,
+    childFactory: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      component: 'span',
+      childFactory: emptyFunction.thatReturnsArgument
+    };
+  },
+
+  getInitialState: function() {
+    return {
+      children: ReactTransitionChildMapping.getChildMapping(this.props.children)
+    };
+  },
+
+  componentWillMount: function() {
+    this.propsChildMapping = {};
+    this.currentlyTransitioningKeys = {};
+    this.keysToEnter = [];
+    this.keysToLeave = [];
+  },
+
+  componentDidMount: function() {
+    var initialChildMapping = this.state.children;
+    for (var key in initialChildMapping) {
+      if (initialChildMapping[key]) {
+        this.performAppear(key);
+      }
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var nextChildMapping = ReactTransitionChildMapping.getChildMapping(
+      nextProps.children
+    );
+    var propsChildMapping = this.propsChildMapping;
+
+    var key;
+
+    for (key in nextChildMapping) {
+      var hasPrev = propsChildMapping && propsChildMapping.hasOwnProperty(key);
+      if (nextChildMapping[key] && !hasPrev) {
+        this.keysToEnter.push(key);
+      }
+    }
+
+    for (key in propsChildMapping) {
+      var hasNext = nextChildMapping && nextChildMapping.hasOwnProperty(key);
+      if (propsChildMapping[key] && !hasNext) {
+        this.keysToLeave.push(key);
+      }
+    }
+
+    this.propsChildMapping = nextChildMapping;
+
+    this.setState({
+      children: ReactTransitionChildMapping.mergeChildMappings(
+        this.state.children,
+        nextChildMapping
+      )
+    });
+
+    // If we want to someday check for reordering, we could do it here.
+  },
+
+  componentDidUpdate: function() {
+    var keysToEnter = this.keysToEnter;
+    this.keysToEnter = [];
+    keysToEnter.forEach(this.performEnter);
+
+    var keysToLeave = this.keysToLeave;
+    this.keysToLeave = [];
+    keysToLeave.forEach(this.performLeave);
+  },
+
+  performAppear: function(key) {
+    this.currentlyTransitioningKeys[key] = APPEARING;
+
+    var component = this.refs[key];
+
+    if (component.componentWillAppear) {
+      component.componentWillAppear(
+        this._handleDoneAppearing.bind(this, key)
+      );
+    } else {
+      this._handleDoneAppearing(key);
+    }
+  },
+
+  _handleDoneAppearing: function(key) {
+    if (this.currentlyTransitioningKeys[key] !== APPEARING) {
+      return;
+    }
+
+    var component = this.refs[key];
+    if (component.componentDidAppear) {
+      component.componentDidAppear();
+    }
+
+    delete this.currentlyTransitioningKeys[key];
+  },
+
+  performEnter: function(key) {
+    this.currentlyTransitioningKeys[key] = ENTERING;
+
+    var component = this.refs[key];
+
+    if (component.componentWillEnter) {
+      component.componentWillEnter(
+        this._handleDoneEntering.bind(this, key)
+      );
+    } else {
+      this._handleDoneEntering(key);
+    }
+  },
+
+  _handleDoneEntering: function(key) {
+    if (this.currentlyTransitioningKeys[key] !== ENTERING) {
+      return;
+    }
+
+    var component = this.refs[key];
+    if (component.componentDidEnter) {
+      component.componentDidEnter();
+    }
+
+    delete this.currentlyTransitioningKeys[key];
+  },
+
+  performLeave: function(key) {
+    this.currentlyTransitioningKeys[key] = LEAVING;
+
+    var component = this.refs[key];
+    if (component.componentWillLeave) {
+      component.componentWillLeave(this._handleDoneLeaving.bind(this, key));
+    } else {
+      // Note that this is somewhat dangerous b/c it calls setState()
+      // again, effectively mutating the component before all the work
+      // is done.
+      this._handleDoneLeaving(key);
+    }
+  },
+
+  _handleDoneLeaving: function(key) {
+    if (this.currentlyTransitioningKeys[key] !== LEAVING) {
+      return;
+    }
+
+    var component = this.refs[key];
+
+    if (component.componentDidLeave) {
+      component.componentDidLeave();
+    }
+
+    delete this.currentlyTransitioningKeys[key];
+
+    var newChildren = assign({}, this.state.children);
+    delete newChildren[key];
+    this.setState({children: newChildren});
+  },
+
+  render: function() {
+    // TODO: we could get rid of the need for the wrapper node
+    // by cloning a single child
+    var childrenToRender = [];
+    for (var key in this.state.children) {
+      var child = this.state.children[key];
+      if (child) {
+        // You may need to apply reactive updates to a child as it is leaving.
+        // The normal React way to do it won't work since the child will have
+        // already been removed. In case you need this behavior you can provide
+        // a childFactory function to wrap every child, even the ones that are
+        // leaving.
+        childrenToRender.push(cloneWithProps(
+          this.props.childFactory(child),
+          {ref: key, key: key}
+        ));
+      }
+    }
+    return React.createElement(
+      this.props.component,
+      this.props,
+      childrenToRender
+    );
+  }
+});
+
+module.exports = RobustTransitionGroup;
