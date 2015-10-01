@@ -1,4 +1,4 @@
-# robust-transition-group
+# react-interruptible-transition-group
 an alternative to `ReactTransitionGroup` with reliable behavior when components re-enter before fully leaving or vice versa
 
 This problem is described in [this React issue](https://github.com/facebook/react/issues/1326).

@@ -1,18 +1,16 @@
 'use strict';
 
 var React = require("react");
-var ReactTransitionChildMapping = require("react/lib/ReactTransitionChildMapping");
+var ReactTransitionChildMapping = require("./ReactTransitionChildMapping");
 
-var assign = require("react/lib/Object.assign");
-var cloneWithProps = require("react/lib/cloneWithProps");
-var emptyFunction = require("react/lib/emptyFunction");
+var assign = require("lodash/object/assign");
 
 var APPEARING = 'appear';
 var ENTERING = 'enter';
 var LEAVING = 'leave';
 
-var RobustTransitionGroup = React.createClass({
-  displayName: 'RobustTransitionGroup',
+var InterruptibleTransitionGroup = React.createClass({
+  displayName: 'InterruptibleTransitionGroup',
 
   propTypes: {
     component: React.PropTypes.any,
@@ -22,7 +20,7 @@ var RobustTransitionGroup = React.createClass({
   getDefaultProps: function() {
     return {
       component: 'span',
-      childFactory: emptyFunction.thatReturnsArgument
+      childFactory: child => child,
     };
   },
 
@@ -190,7 +188,7 @@ var RobustTransitionGroup = React.createClass({
         // already been removed. In case you need this behavior you can provide
         // a childFactory function to wrap every child, even the ones that are
         // leaving.
-        childrenToRender.push(cloneWithProps(
+        childrenToRender.push(React.cloneElement(
           this.props.childFactory(child),
           {ref: key, key: key}
         ));
@@ -204,4 +202,4 @@ var RobustTransitionGroup = React.createClass({
   }
 });
 
-module.exports = RobustTransitionGroup;
+module.exports = InterruptibleTransitionGroup;

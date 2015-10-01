@@ -1,0 +1,28 @@
+{
+  "name": "react-interruptible-transition-group",
+  "version": "0.14.0-rc1",
+  "description": "a variation of ReactTransitionGroup where appearing/entering/leaving can interrupt each other",
+  "main": "InterruptibleTransitionGroup.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jedwards1211/react-interruptible-transition-group"
+  },
+  "keywords": [
+    "ReactTransitionGroup",
+    "React",
+    "transition",
+    "TransitionGroup"
+  ],
+  "author": "Andy Edwards <jedwards@fastmail.com> (https://github.com/jedwards1211)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jedwards1211/react-interruptible-transition-group/issues"
+  },
+  "homepage": "https://github.com/jedwards1211/react-interruptible-transition-group",
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
+}
