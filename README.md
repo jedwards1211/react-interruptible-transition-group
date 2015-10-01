@@ -1,4 +1,10 @@
-# react-interruptible-transition-group
+# InterruptibleTransitionGroup
+
+(not deployed to npm yet)
+
+```
+var InterruptibleTransitionGroup = require('react-interruptible-transition-group');
+```
 
 An alternative to `ReactTransitionGroup` where appearing, entering, and leaving transitions get interrupted immediately if a child isremoved/re-added before fully entering/leaving.  This behaves more like CSS transitions than `ReactTransitionGroup`.
 
