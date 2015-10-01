@@ -3,9 +3,6 @@
   "version": "0.14.0-rc1",
   "description": "a variation of ReactTransitionGroup where appearing/entering/leaving can interrupt each other",
   "main": "InterruptibleTransitionGroup.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jedwards1211/react-interruptible-transition-group"
@@ -24,5 +21,8 @@
   "homepage": "https://github.com/jedwards1211/react-interruptible-transition-group",
   "dependencies": {
     "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "react": "^0.14.0-rc1"
   }
 }

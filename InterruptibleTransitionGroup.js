@@ -20,7 +20,7 @@ var InterruptibleTransitionGroup = React.createClass({
   getDefaultProps: function() {
     return {
       component: 'span',
-      childFactory: child => child,
+      childFactory: function(child) { return child; }
     };
   },
 

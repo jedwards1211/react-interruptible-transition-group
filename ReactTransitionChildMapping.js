@@ -1,15 +1,3 @@
-/**
- * Copyright 2013-2015, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- *
- * @typechecks static-only
- * @providesModule ReactTransitionChildMapping
- */
-
 'use strict';
 
 var React = require('react');
@@ -27,8 +15,8 @@ var ReactTransitionChildMapping = {
       return children;
     }
     var result = {};
-    React.Children.forEach(children, child => {
-      if ('key' in child) {
+    React.Children.forEach(children, function(child) {
+      if (child.hasOwnProperty('key')) {
         result[child.key] = child;
       }
     });
